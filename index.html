@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday, Sunny!</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: background 0.5s ease-in-out;
+            background-image: url('images/sunny1.jpg');
+        }
+
+        .container {
+            padding: 20px;
+            color: white;
+            text-shadow: 2px 2px 4px black;
+        }
+
+        .animated-text {
+            font-size: 2.5em;
+            font-weight: bold;
+            animation: glow 2s infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 10px yellow;
+            }
+
+            to {
+                text-shadow: 0 0 20px red;
+            }
+        }
+
+        .btn {
+            padding: 10px 15px;
+            margin: 10px;
+            border: none;
+            font-size: 1em;
+            cursor: pointer;
+            border-radius: 5px;
+            background: #ff4081;
+            color: white;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+            transition: 0.3s;
+        }
+
+        .btn:hover {
+            background: #d81b60;
+        }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .balloon-container {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .balloon {
+            width: 50px;
+            height: 70px;
+            background-color: red;
+            border-radius: 50%;
+            position: absolute;
+            bottom: -100px;
+            animation: floatUp 6s linear infinite;
+        }
+
+        .balloon:nth-child(2n) {
+            background-color: blue;
+        }
+
+        .balloon:nth-child(3n) {
+            background-color: yellow;
+        }
+
+        .balloon:nth-child(4n) {
+            background-color: green;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-100vh) scale(1.2);
+                opacity: 0;
+            }
+        }
+
+        .dark-mode {
+            background: #121212 !important;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+    <audio id="bg-music" loop>
+        <source src="sunny.mp3" type="audio/mp3">
+    </audio>
+
+    <div class="container">
+        <h1 class="animated-text">🎉 Happy Birthday, <span id="brother-name">Sunny</span>! 🎂</h1>
+        <button class="btn" onclick="changeBackground()">Change Background</button>
+        <button class="btn" onclick="toggleMusic()">🎵 Play/Pause Music</button>
+        <button class="btn" onclick="triggerBalloons()">🎈 Release Balloons</button>
+        <button class="btn" onclick="toggleDarkMode()">🌙 Light/Dark Mode</button>
+        <canvas id="confetti-canvas"></canvas>
+    </div>
+
+    <script>
+        let currentBackground = 1;
+
+        function changeBackground() {
+            currentBackground++;
+            let newBackground = `images/sunny${currentBackground}.jpg`;
+            let img = new Image();
+            img.src = newBackground;
+            img.onload = function () {
+                document.body.style.backgroundImage = `url('${newBackground}')`;
+            };
+            img.onerror = function () {
+                currentBackground = 1;
+                document.body.style.backgroundImage = "url('images/sunny1.jpg')";
+            };
+        }
+
+        let music = document.getElementById("bg-music");
+
+        function toggleMusic() {
+            if (music.paused) {
+                music.play();
+            } else {
+                music.pause();
+            }
+        }
+
+        function triggerBalloons() {
+            let balloonContainer = document.createElement("div");
+            balloonContainer.classList.add("balloon-container");
+            document.body.appendChild(balloonContainer);
+
+            for (let i = 0; i < 10; i++) {
+                let balloon = document.createElement("div");
+                balloon.classList.add("balloon");
+                balloon.style.left = Math.random() * 90 + "vw";
+                balloon.style.animationDuration = Math.random() * 5 + 4 + "s";
+                balloonContainer.appendChild(balloon);
+            }
+
+            setTimeout(() => {
+                balloonContainer.remove();
+            }, 8000);
+        }
+
+        function createConfetti() {
+            let canvas = document.getElementById("confetti-canvas");
+            let ctx = canvas.getContext("2d");
+            let particles = [];
+
+            for (let i = 0; i < 100; i++) {
+                particles.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, speed: Math.random() * 5 + 1 });
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => {
+                    p.y += p.speed;
+                    if (p.y > canvas.height) p.y = 0;
+                    ctx.fillStyle = `hsl(${Math.random() * 360}, 100%, 60%)`;
+                    ctx.fillRect(p.x, p.y, 5, 5);
+                });
+                requestAnimationFrame(draw);
+            }
+            draw();
+        }
+
+        createConfetti();
+
+        function toggleDarkMode() {
+            document.body.classList.toggle("dark-mode");
+        }
+    </script>
+    <form id="birthdayWishForm">
+        <h2>🎉 Send Your Birthday Wish! 🎂</h2>
+        <input type="text" id="wishSenderName" name="wishSenderName" placeholder="Enter your name" required />
+        <textarea id="wishMessage" name="wishMessage" placeholder="Enter your message" required></textarea>
+        <label for="wishRating">Rate this Website (1-10):</label>
+        <input type="number" id="wishRating" name="wishRating" min="1" max="10" required />
+        <button type="submit" class="wishSubmitButton">Send Wish</button>
+    </form>
+
+    <script>
+        document.getElementById("birthdayWishForm").addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            const formData = {
+                name: document.getElementById("wishSenderName").value,
+                message: document.getElementById("wishMessage").value,
+                rating: parseInt(document.getElementById("wishRating").value),
+            };
+
+            try {
+                const response = await fetch("http://localhost:5000/submit", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(formData),
+                });
+
+                const data = await response.json();
+                alert(data.message);
+                document.getElementById("birthdayWishForm").reset();
+            } catch (error) {
+                console.error("Error:", error);
+            }
+        });
+    </script>
+
+    <style>
+        #birthdayWishForm {
+            width: 90%;
+            max-width: 400px;
+            margin: 20px auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        #birthdayWishForm h2 {
+            font-size: 1.8em;
+            margin-bottom: 10px;
+            color: #ff4081;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        #wishSenderName,
+        #wishMessage {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 2px solid #ff4081;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: 0.3s;
+        }
+
+        #wishSenderName:focus,
+        #wishMessage:focus {
+            outline: none;
+            border-color: #d81b60;
+            box-shadow: 0px 0px 8px rgba(216, 27, 96, 0.5);
+        }
+
+        #wishMessage {
+            height: 80px;
+            resize: none;
+        }
+
+        .wishSubmitButton {
+            width: 100%;
+            padding: 12px;
+            font-size: 1em;
+            border: none;
+            border-radius: 8px;
+            background: #ff4081;
+            color: white;
+            cursor: pointer;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+            transition: 0.3s;
+        }
+
+        .wishSubmitButton:hover {
+            background: #d81b60;
+        }
+
+        #wishRating {
+            width: 150px;
+            padding: 5px;
+            font-size: 16px;
+            margin-top: 5px;
+        }
+    </style>
+</body>
+</html>
